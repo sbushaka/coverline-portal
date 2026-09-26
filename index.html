@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coverline Systems — Client Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Exo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16181D;
+    --muted: #6B7280;
+    --line: #E7E8EB;
+    --bg: #FFFFFF;
+    --panel-bg: #FAFAFB;
+    --panel: #FFFFFF;
+    --accent-a: #3E63DD;
+    --accent-a-tint: #EAEFFC;
+    --amber: #F5A623;
+    --ink-black: #141414;
+    --success: #1E8E5A;
+    --success-bg: #E7F5ED;
+    --warn: #B8862B;
+    --warn-bg: #FBF2E1;
+    --danger: #C0392B;
+    --danger-bg: #FBEAE7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  a { color: var(--accent-a); }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ---- Logo mark (exact match to site) ---- */
+  .logo-mark {
+    width: 30px; height: 30px;
+    flex-shrink: 0;
+    transition: transform .4s ease;
+  }
+  .auth-brand:hover .logo-mark,
+  .sidebar-brand:hover .logo-mark {
+    transform: rotate(90deg);
+  }
+  .wordmark {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.3px;
+    color: var(--ink);
+  }
+
+  /* ---- Auth screen ---- */
+  #auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--panel-bg);
+  }
+  .auth-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 380px;
+    padding: 36px 32px;
+    box-shadow: 0 1px 3px rgba(17,18,20,0.04), 0 12px 32px rgba(17,18,20,0.05);
+  }
+  .auth-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .auth-card h1 { font-size: 20px; margin-bottom: 4px; }
+  .auth-sub { color: var(--muted); font-size: 13.5px; margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .field input {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #FCFCFD;
+  }
+  .field input:focus {
+    outline: 2px solid var(--accent-a);
+    outline-offset: -1px;
+    border-color: var(--accent-a);
+  }
+  .btn-primary {
+    width: 100%;
+    background: var(--ink-black);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .btn-primary:hover { background: #000; }
+  .btn-primary:disabled { opacity: 0.6; cursor: default; }
+  .auth-toggle { text-align: center; margin-top: 18px; font-size: 13.5px; color: var(--muted); }
+  .auth-toggle button {
+    background: none; border: none; color: var(--accent-a);
+    font-size: 13.5px; font-weight: 600; text-decoration: underline; padding: 0;
+  }
+  .auth-error {
+    background: var(--danger-bg); color: var(--danger);
+    padding: 10px 12px; border-radius: 8px; font-size: 13px;
+    margin-bottom: 16px; display: none;
+  }
+  .signup-only { display: none; }
+
+  /* ---- App shell ---- */
+  #app-screen { display: none; min-height: 100vh; }
+  .shell { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid var(--line);
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-nav { margin-top: 32px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    background: none; border: none; color: var(--muted);
+    text-align: left; padding: 10px 12px; border-radius: 8px;
+    font-size: 14px; font-family: inherit; font-weight: 500;
+  }
+  .nav-item:hover { background: var(--panel-bg); color: var(--ink); }
+  .nav-item.active { background: var(--accent-a-tint); color: var(--accent-a); font-weight: 700; }
+  .sidebar-foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); }
+  .sidebar-foot .who { font-size: 13px; color: var(--muted); margin-bottom: 10px; word-break: break-all; }
+  .signout-btn {
+    background: none; border: 1px solid var(--line); color: var(--ink);
+    font-size: 12.5px; padding: 8px 10px; border-radius: 999px; width: 100%; font-weight: 600;
+  }
+  .signout-btn:hover { background: var(--panel-bg); }
+
+  .main { padding: 36px 44px; max-width: 900px; }
+  .main h2 { font-size: 24px; margin-bottom: 6px; }
+  .main .subhead { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(17,18,20,0.03);
+  }
+  .card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .card h3 { font-size: 15.5px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { color: var(--muted); font-size: 13.5px; }
+  .badge {
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px;
+    white-space: nowrap; text-transform: capitalize;
+  }
+  .badge.in_progress, .badge.open { background: var(--warn-bg); color: var(--warn); }
+  .badge.complete, .badge.paid, .badge.closed { background: var(--success-bg); color: var(--success); }
+  .badge.unpaid, .badge.overdue { background: var(--danger-bg); color: var(--danger); }
+
+  .empty {
+    color: var(--muted); font-size: 14px; padding: 30px 0;
+    text-align: center; border: 1px dashed var(--line); border-radius: 12px;
+  }
+
+  .form-card { padding: 22px; }
+  .form-card textarea, .form-card input[type=text] {
+    width: 100%; padding: 10px 13px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 14px; font-family: inherit; background: #FCFCFD;
+  }
+  .form-card textarea { min-height: 90px; resize: vertical; }
+  .btn-accent {
+    background: var(--ink-black); color: white; border: none;
+    padding: 10px 18px; border-radius: 999px; font-size: 13.5px; font-weight: 700;
+  }
+  .btn-accent:hover { background: #000; }
+
+  .meta-row { display: flex; gap: 18px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .amount { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 18px; }
+  .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+  .metric-row:first-of-type { border-top: none; margin-top: 4px; }
+  .metric-label { font-size: 13.5px; color: var(--muted); }
+  .metric-value { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 15px; }
+  .pay-link { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--accent-a); }
+
+  @media (max-width: 720px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { flex-direction: row; align-items: center; padding: 14px 18px; }
+    .sidebar-nav { display: none; }
+    .sidebar-foot { display: none; }
+    .main { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="11" fill="none" stroke="#3E63DD" stroke-width="1.2" stroke-dasharray="2 2.5"/>
+          <path d="M13 7 L7 7 L7 13" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M27 7 L33 7 L33 13" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 33 L7 33 L7 27" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M27 33 L33 33 L33 27" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="20" r="3.2" fill="#F2A93B"/>
+        </svg>
+      </div>
+      <span class="wordmark">Coverline Systems</span>
+    </div>
+    <h1 id="auth-title">Sign in</h1>
+    <p class="auth-sub" id="auth-subhead">Access your projects, requests, and invoices.</p>
+
+    <div class="auth-error" id="auth-error"></div>
+
+    <form id="auth-form">
+      <div class="field signup-only">
+        <label for="f-name">Full name</label>
+        <input type="text" id="f-name" autocomplete="name">
+      </div>
+      <div class="field signup-only">
+        <label for="f-company">Company</label>
+        <input type="text" id="f-company" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input type="email" id="f-email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="f-password">Password</label>
+        <input type="password" id="f-password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary" id="auth-submit">Sign in</button>
+    </form>
+
+    <div class="auth-toggle">
+      <span id="toggle-text">Don't have an account?</span>
+      <button id="toggle-btn">Create one</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="auth-brand">
+        <div class="logo-mark">
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="11" fill="none" stroke="#3E63DD" stroke-width="1.2" stroke-dasharray="2 2.5"/>
+            <path d="M13 7 L7 7 L7 13" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M27 7 L33 7 L33 13" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 33 L7 33 L7 27" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M27 33 L33 33 L33 27" fill="none" stroke="#3E63DD" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="20" r="3.2" fill="#F2A93B"/>
+          </svg>
+        </div>
+        <span class="wordmark">Coverline Systems</span>
+      </div>
+      <div class="sidebar-nav">
+        <button class="nav-item active" data-view="projects">Projects</button>
+        <button class="nav-item" data-view="systems">Systems</button>
+        <button class="nav-item" data-view="requests">Requests</button>
+        <button class="nav-item" data-view="invoices">Invoices</button>
+      </div>
+      <div class="sidebar-foot">
+        <div class="who" id="who-label">—</div>
+        <button class="signout-btn" id="signout-btn">Sign out</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- PROJECTS VIEW -->
+      <div class="view" id="view-projects">
+        <h2>Projects</h2>
+        <p class="subhead">Current status of work in progress.</p>
+        <div id="signup-payment-banner"></div>
+        <div id="projects-list"></div>
+      </div>
+
+      <!-- SYSTEMS VIEW -->
+      <div class="view" id="view-systems" style="display:none;">
+        <h2>Systems</h2>
+        <p class="subhead">Performance of the automations running for your business.</p>
+        <div id="systems-list"></div>
+      </div>
+
+      <!-- REQUESTS VIEW -->
+      <div class="view" id="view-requests" style="display:none;">
+        <h2>Requests</h2>
+        <p class="subhead">Send a new request or check on an existing one.</p>
+
+        <div class="card form-card">
+          <h3 style="margin-bottom:12px;">New request</h3>
+          <form id="request-form">
+            <div class="field">
+              <label for="req-subject">Subject</label>
+              <input type="text" id="req-subject" required>
+            </div>
+            <div class="field">
+              <label for="req-message">Details</label>
+              <textarea id="req-message" required></textarea>
+            </div>
+            <button type="submit" class="btn-accent">Submit request</button>
+          </form>
+        </div>
+
+        <div id="requests-list" style="margin-top: 22px;"></div>
+      </div>
+
+      <!-- INVOICES VIEW -->
+      <div class="view" id="view-invoices" style="display:none;">
+        <h2>Invoices</h2>
+        <p class="subhead">Outstanding and past invoices.</p>
+        <div id="invoices-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+  // ---- CONFIGURE THESE TWO VALUES ----
+  const SUPABASE_URL = 'https://vixkbdginwpxllimdapg.supabase.co'
+  const SUPABASE_KEY = 'sb_publishable_5nZZ8DLB-aKR_tbPG9yzNA_mz_ueEQn'
+  // -------------------------------------
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+  const authScreen = document.getElementById('auth-screen')
+  const appScreen = document.getElementById('app-screen')
+  const authForm = document.getElementById('auth-form')
+  const authError = document.getElementById('auth-error')
+  const authTitle = document.getElementById('auth-title')
+  const authSubhead = document.getElementById('auth-subhead')
+  const authSubmit = document.getElementById('auth-submit')
+  const toggleBtn = document.getElementById('toggle-btn')
+  const toggleText = document.getElementById('toggle-text')
+  const signupFields = document.querySelectorAll('.signup-only')
+
+  let mode = 'signin'
+
+  toggleBtn.addEventListener('click', () => {
+    mode = mode === 'signin' ? 'signup' : 'signin'
+    const isSignup = mode === 'signup'
+    authTitle.textContent = isSignup ? 'Create your account' : 'Sign in'
+    authSubhead.textContent = isSignup
+      ? 'Set up access to your client portal.'
+      : 'Access your projects, requests, and invoices.'
+    authSubmit.textContent = isSignup ? 'Create account' : 'Sign in'
+    toggleText.textContent = isSignup ? 'Already have an account?' : "Don't have an account?"
+    toggleBtn.textContent = isSignup ? 'Sign in' : 'Create one'
+    signupFields.forEach(f => f.style.display = isSignup ? 'block' : 'none')
+    authError.style.display = 'none'
+  })
+
+  authForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    authError.style.display = 'none'
+    authSubmit.disabled = true
+
+    const email = document.getElementById('f-email').value.trim()
+    const password = document.getElementById('f-password').value
+
+    try {
+      if (mode === 'signup') {
+        const name = document.getElementById('f-name').value.trim()
+        const company = document.getElementById('f-company').value.trim()
+        const { error } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { name, company } }
+        })
+        if (error) throw error
+        showError('Account created. Check your email to confirm, then sign in.', false)
+        mode = 'signin'
+        toggleBtn.click(); toggleBtn.click()
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+      }
+    } catch (err) {
+      showError(err.message, true)
+    } finally {
+      authSubmit.disabled = false
+    }
+  })
+
+  function showError(msg, isError) {
+    authError.textContent = msg
+    authError.style.background = isError ? 'var(--danger-bg)' : 'var(--success-bg)'
+    authError.style.color = isError ? 'var(--danger)' : 'var(--success)'
+    authError.style.display = 'block'
+  }
+
+  document.getElementById('signout-btn').addEventListener('click', async () => {
+    await supabase.auth.signOut()
+  })
+
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      document.querySelectorAll('.view').forEach(v => v.style.display = 'none')
+      document.getElementById('view-' + btn.dataset.view).style.display = 'block'
+    })
+  })
+
+  async function loadProjects() {
+    const el = document.getElementById('projects-list')
+    const { data, error } = await supabase.from('projects').select('*').order('updated_at', { ascending: false })
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<div class="empty">No projects yet.</div>'
+      return
+    }
+    el.innerHTML = data.map(p => `
+      <div class="card">
+        <div class="card-row">
+          <div>
+            <h3>${escapeHtml(p.name)}</h3>
+            <div class="desc">${escapeHtml(p.description || '')}</div>
+          </div>
+          <span class="badge ${p.status}">${p.status.replace('_',' ')}</span>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  async function loadSignupBanner() {
+    const el = document.getElementById('signup-payment-banner')
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: client } = await supabase.from('clients').select('install_fee, monthly_retainer, autopay_enabled').eq('id', user.id).single()
+
+    if (!client || !client.install_fee) {
+      el.innerHTML = ''
+      return
+    }
+
+    if (client.autopay_enabled) {
+      el.innerHTML = `
+        <div class="card" style="border-color: var(--success); background: var(--success-bg);">
+          <div class="card-row">
+            <div>
+              <h3 style="color: var(--success);">Autopay active</h3>
+              <div class="desc">$${Number(client.monthly_retainer).toFixed(2)}/month, billed automatically.</div>
+            </div>
+          </div>
+        </div>
+      `
+      return
+    }
+
+    const total = Number(client.install_fee) + Number(client.monthly_retainer || 0)
+    el.innerHTML = `
+      <div class="card" style="border-color: var(--accent-a);">
+        <h3>Complete your setup</h3>
+        <div class="desc" style="margin-bottom: 14px;">
+          One-time payment of $${total.toFixed(2)} (install + first month) gets your systems live.
+          Your card will be securely saved for the $${Number(client.monthly_retainer).toFixed(2)}/month retainer going forward.
+        </div>
+        <button class="btn-accent" id="signup-pay-btn">Complete payment</button>
+      </div>
+    `
+    document.getElementById('signup-pay-btn').addEventListener('click', async (e) => {
+      e.target.disabled = true
+      e.target.textContent = 'Loading...'
+      try {
+        const res = await fetch('https://n8n.coverlinesystems.com/webhook/create-signup-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client_id: user.id })
+        })
+        const result = await res.json()
+        if (result.url) {
+          window.location.href = result.url
+        } else {
+          e.target.textContent = 'Something went wrong — try again'
+          e.target.disabled = false
+        }
+      } catch (err) {
+        e.target.textContent = 'Something went wrong — try again'
+        e.target.disabled = false
+      }
+    })
+  }
+
+  async function loadSystems() {
+    const el = document.getElementById('systems-list')
+    const { data: services, error: svcError } = await supabase.from('client_services').select('*').order('added_at', { ascending: true })
+    if (svcError || !services || services.length === 0) {
+      el.innerHTML = '<div class="empty">No systems set up yet. Once your first automation goes live, its performance will show up here.</div>'
+      return
+    }
+    const { data: metrics } = await supabase.from('client_metrics').select('*').order('recorded_at', { ascending: false })
+
+    el.innerHTML = services.map(svc => {
+      const svcMetrics = (metrics || []).filter(m => m.service_type === svc.service_type)
+      const metricsHtml = svcMetrics.length > 0
+        ? svcMetrics.map(m => `
+            <div class="metric-row">
+              <span class="metric-label">${escapeHtml(m.metric_label)}</span>
+              <span class="metric-value">${escapeHtml(String(m.value))}</span>
+            </div>
+          `).join('')
+        : `<div class="empty" style="margin-top:10px;">No data yet — this system is set up, and performance numbers will appear here once it's live.</div>`
+      return `
+        <div class="card">
+          <h3>${escapeHtml(svc.service_label)}</h3>
+          ${metricsHtml}
+        </div>
+      `
+    }).join('')
+  }
+
+  async function loadRequests() {
+    const el = document.getElementById('requests-list')
+    const { data, error } = await supabase.from('requests').select('*').order('created_at', { ascending: false })
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<div class="empty">No requests submitted yet.</div>'
+      return
+    }
+    el.innerHTML = data.map(r => `
+      <div class="card">
+        <div class="card-row">
+          <div>
+            <h3>${escapeHtml(r.subject)}</h3>
+            <div class="desc">${escapeHtml(r.message)}</div>
+          </div>
+          <span class="badge ${r.status}">${r.status}</span>
+        </div>
+        <div class="meta-row">${new Date(r.created_at).toLocaleDateString()}</div>
+      </div>
+    `).join('')
+  }
+
+  async function loadInvoices() {
+    const el = document.getElementById('invoices-list')
+    const { data, error } = await supabase.from('invoices').select('*').order('created_at', { ascending: false })
+    if (error || !data || data.length === 0) {
+      el.innerHTML = '<div class="empty">No invoices yet.</div>'
+      return
+    }
+    el.innerHTML = data.map(inv => `
+      <div class="card">
+        <div class="card-row">
+          <div>
+            <div class="amount">$${Number(inv.amount).toFixed(2)}</div>
+            <div class="desc">${escapeHtml(inv.description || '')}</div>
+            ${inv.payment_link && inv.status === 'unpaid' ? `<a class="pay-link" href="${inv.payment_link}" target="_blank" rel="noopener">Pay now →</a>` : ''}
+          </div>
+          <span class="badge ${inv.status}">${inv.status}</span>
+        </div>
+        <div class="meta-row">${inv.due_date ? 'Due ' + new Date(inv.due_date).toLocaleDateString() : ''}</div>
+      </div>
+    `).join('')
+  }
+
+  document.getElementById('request-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const subject = document.getElementById('req-subject').value.trim()
+    const message = document.getElementById('req-message').value.trim()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { error } = await supabase.from('requests').insert({
+      client_id: user.id, subject, message
+    })
+    if (!error) {
+      document.getElementById('request-form').reset()
+      loadRequests()
+    }
+  })
+
+  function escapeHtml(str) {
+    const d = document.createElement('div')
+    d.textContent = str
+    return d.innerHTML
+  }
+
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+      authScreen.style.display = 'none'
+      appScreen.style.display = 'block'
+      const { data: { user } } = await supabase.auth.getUser()
+      document.getElementById('who-label').textContent = user.email
+      loadProjects()
+      loadSignupBanner()
+      loadSystems()
+      loadRequests()
+      loadInvoices()
+    } else {
+      authScreen.style.display = 'flex'
+      appScreen.style.display = 'none'
+    }
+  })
+</script>
+</body>
+</html>
